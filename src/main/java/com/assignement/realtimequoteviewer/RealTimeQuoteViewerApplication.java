@@ -15,7 +15,6 @@ import java.util.Arrays;
 public class RealTimeQuoteViewerApplication {
 
 
-
     public static void main(String[] args) {
         SpringApplication.run(RealTimeQuoteViewerApplication.class, args);
     }
@@ -32,14 +31,14 @@ public class RealTimeQuoteViewerApplication {
                 System.out.println(beanName);
             }
 
-
-//            quoteViewer.start();
+            QuoteViewer quoteViewer = new QuoteViewer(args[0]);
+            quoteViewer.start();
 
 
         };
     }
 
-    @Scheduled(fixedDelay = 30000)
+    @Scheduled(fixedDelay = 1000)
     public void run() {
         System.out.println("Running");
     }
