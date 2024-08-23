@@ -11,6 +11,13 @@ public class Security {
 
     private String securityType;
 
+    public Security(){}
+
+    public Security(String tickerId, String securityType) {
+        this.tickerId = tickerId;
+        this.securityType = securityType;
+    }
+
     @Override
     public String toString() {
         return "{" +

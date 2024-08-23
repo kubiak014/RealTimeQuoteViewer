@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Arrays;
+import java.util.List;
 
 @SpringBootApplication
 @EnableScheduling
@@ -44,8 +45,8 @@ public class RealTimeQuoteViewerApplication {
             Thread thread = new Thread(marketDataProviderRunnable);
             thread.start();
 
-            Security aapl = securityRepository.findByTickerId("AAPL");
-            System.out.println("Security loaded from DB : " + aapl);
+            List<Security> securities = securityRepository.findAll();
+            securities.forEach(security -> System.out.println("Security loaded from DB : " + security));
 
             QuoteViewer quoteViewer = new QuoteViewer(args[0]);
             quoteViewer.start();
