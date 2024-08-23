@@ -1,5 +1,9 @@
 package com.assignement.realtimequoteviewer;
 
+import com.assignement.realtimequoteviewer.model.Security;
+import com.assignement.realtimequoteviewer.provider.MarketDataProviderRunnable;
+import com.assignement.realtimequoteviewer.repository.SecurityRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,6 +17,11 @@ import java.util.Arrays;
 @SpringBootApplication
 @EnableScheduling
 public class RealTimeQuoteViewerApplication {
+
+    MarketDataProviderRunnable marketDataProviderRunnable;
+
+    @Autowired
+    private SecurityRepository securityRepository;
 
 
     public static void main(String[] args) {
@@ -31,10 +40,15 @@ public class RealTimeQuoteViewerApplication {
                 System.out.println(beanName);
             }
 
+            marketDataProviderRunnable = new MarketDataProviderRunnable();
+            Thread thread = new Thread(marketDataProviderRunnable);
+            thread.start();
+
+            Security aapl = securityRepository.findByTickerId("AAPL");
+            System.out.println("Security loaded from DB : " + aapl);
+
             QuoteViewer quoteViewer = new QuoteViewer(args[0]);
             quoteViewer.start();
-
-
         };
     }
 
