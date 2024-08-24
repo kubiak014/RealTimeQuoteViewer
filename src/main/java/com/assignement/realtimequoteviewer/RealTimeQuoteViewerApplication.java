@@ -45,14 +45,14 @@ public class RealTimeQuoteViewerApplication {
                 System.out.println(beanName);
             }
 
-            marketDataProviderRunnable = new MarketDataProviderRunnable(priceUpdateChannel);
+            marketDataProviderRunnable = new MarketDataProviderRunnable(priceUpdateChannel, securityRepository);
             Thread thread = new Thread(marketDataProviderRunnable);
             thread.start();
 
             List<Security> securities = securityRepository.findAll();
             securities.forEach(security -> System.out.println("Security loaded from DB : " + security));
 
-            QuoteViewer quoteViewer = new QuoteViewer(args[0], priceUpdateChannel);
+            QuoteViewer quoteViewer = new QuoteViewer(args[0], priceUpdateChannel, securityRepository);
             quoteViewer.start();
         };
     }

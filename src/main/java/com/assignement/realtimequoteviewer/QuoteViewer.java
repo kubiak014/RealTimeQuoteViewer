@@ -3,6 +3,8 @@ package com.assignement.realtimequoteviewer;
 import com.assignement.realtimequoteviewer.loader.PositionLoader;
 import com.assignement.realtimequoteviewer.model.Portfolio;
 import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
+import com.assignement.realtimequoteviewer.repository.SecurityRepository;
+import com.assignement.realtimequoteviewer.service.SecurityService;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -12,6 +14,8 @@ public class QuoteViewer {
     private BlockingQueue<PriceUpdateEvent> priceUpdateChannel;
     private Portfolio portfolio;
 
+    private SecurityService securityService;
+
     QuoteViewer(String positionFilePath) {
         this.portfolio = PositionLoader.loadPortfolioFromExtract(positionFilePath);
         this.priceUpdateChannel = new LinkedBlockingQueue<>();
@@ -20,6 +24,12 @@ public class QuoteViewer {
     public QuoteViewer(String portfolioExtractPath, BlockingQueue<PriceUpdateEvent> priceUpdateChannel) {
         this(portfolioExtractPath);
         this.priceUpdateChannel = priceUpdateChannel;
+    }
+
+    public QuoteViewer(String portfolioExtractPath, BlockingQueue<PriceUpdateEvent> priceUpdateChannel, SecurityRepository securityRepository) {
+        this(portfolioExtractPath);
+        this.priceUpdateChannel = priceUpdateChannel;
+        this.securityService = new SecurityService(securityRepository);
     }
 
     public void start() {
@@ -44,8 +54,8 @@ public class QuoteViewer {
 
         //TODO: if update exist, print new portfolio valuation
         if (this.priceUpdateChannel.peek() != null) {
-            Object priceUpdate = this.priceUpdateChannel.poll();
-            System.out.println("/!\\---------- Market Data update Detected, starting processing ----------/!\\");
+            PriceUpdateEvent priceUpdate = this.priceUpdateChannel.poll();
+            System.out.println("/!\\---------- Market Data update Received " + priceUpdate + ", starting processing ----------/!\\");
         }
     }
 }

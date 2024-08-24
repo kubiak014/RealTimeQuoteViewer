@@ -1,6 +1,7 @@
 package com.assignement.realtimequoteviewer.provider;
 
 import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
+import com.assignement.realtimequoteviewer.repository.SecurityRepository;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -19,6 +20,10 @@ public class MarketDataProviderRunnable implements Runnable {
 
     public MarketDataProviderRunnable(MarketDataProvider marketDataProvider) {
         this.marketDataProvider = marketDataProvider;
+    }
+
+    public MarketDataProviderRunnable(BlockingQueue<PriceUpdateEvent> priceUpdateChannel, SecurityRepository securityRepository) {
+        this.marketDataProvider = new MarketDataProvider(priceUpdateChannel, securityRepository);
     }
 
     @Override

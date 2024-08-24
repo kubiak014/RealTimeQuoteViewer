@@ -1,5 +1,7 @@
 package com.assignement.realtimequoteviewer.model;
 
+import lombok.Getter;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -7,8 +9,10 @@ import javax.persistence.Id;
 public class Security {
 
     @Id
+    @Getter
     private String tickerId;
 
+    @Getter
     private String securityType;
 
     public Security(){}
