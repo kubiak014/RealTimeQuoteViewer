@@ -14,6 +14,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 @SpringBootApplication
 @EnableScheduling
@@ -34,6 +36,7 @@ public class RealTimeQuoteViewerApplication {
         return args -> {
 
             System.out.println("Let's inspect the beans provided by Spring Boot:");
+            BlockingQueue<Object> priceUpdateChannel = new LinkedBlockingQueue<>();
 
             String[] beanNames = ctx.getBeanDefinitionNames();
             Arrays.sort(beanNames);
@@ -41,14 +44,14 @@ public class RealTimeQuoteViewerApplication {
                 System.out.println(beanName);
             }
 
-            marketDataProviderRunnable = new MarketDataProviderRunnable();
+            marketDataProviderRunnable = new MarketDataProviderRunnable(priceUpdateChannel);
             Thread thread = new Thread(marketDataProviderRunnable);
             thread.start();
 
             List<Security> securities = securityRepository.findAll();
             securities.forEach(security -> System.out.println("Security loaded from DB : " + security));
 
-            QuoteViewer quoteViewer = new QuoteViewer(args[0]);
+            QuoteViewer quoteViewer = new QuoteViewer(args[0], priceUpdateChannel);
             quoteViewer.start();
         };
     }

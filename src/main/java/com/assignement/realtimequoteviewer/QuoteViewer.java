@@ -4,13 +4,22 @@ import com.assignement.realtimequoteviewer.loader.PositionLoader;
 import com.assignement.realtimequoteviewer.model.Portfolio;
 
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class QuoteViewer {
 
+    private BlockingQueue priceUpdateChannel;
     private Portfolio portfolio;
 
     QuoteViewer(String positionFilePath) {
         this.portfolio = PositionLoader.loadPortfolioFromExtract(positionFilePath);
+        this.priceUpdateChannel = new LinkedBlockingQueue<>();
+    }
+
+    public QuoteViewer(String portfolioExtractPath, BlockingQueue<Object> priceUpdateChannel) {
+        this(portfolioExtractPath);
+        this.priceUpdateChannel = priceUpdateChannel;
     }
 
     public void start() {
@@ -22,10 +31,8 @@ public class QuoteViewer {
         while (true) {
             //pretty print portfolio
             monitorMarketUpdate();
-
         }
     }
-
 
 
     private void printPortfolioValue() {
@@ -36,18 +43,9 @@ public class QuoteViewer {
     private void monitorMarketUpdate() {
 
         //TODO: if update exist, print new portfolio valuation
-        Random random = new Random();
-        float timer = (float) (random.nextFloat((int) (2 - 0.5 + 1)) + 0.5);
-        try {
-            Thread.sleep((long) (timer * 1000));
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        if (this.priceUpdateChannel.peek() != null) {
+            Object priceUpdate = this.priceUpdateChannel.poll();
+            System.out.println("/!\\---------- Market Data update Detected, starting processing ----------/!\\");
         }
-
-        if(random.nextBoolean()) {
-            System.out.println("/!\\---------- Market Data update Detected ----------/!\\");
-            printPortfolioValue();
-        }
-
     }
 }
