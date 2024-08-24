@@ -1,6 +1,7 @@
 package com.assignement.realtimequoteviewer.provider;
 
 
+import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,25 +12,27 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Component
 public class MarketDataProvider {
 
-    private final BlockingQueue<Object> priceUpdateChannel;
+    private final BlockingQueue<PriceUpdateEvent> priceUpdateChannel;
 
-    @Autowired public MarketDataProvider (){
+    @Autowired
+    public MarketDataProvider() {
         this.priceUpdateChannel = new LinkedBlockingQueue<>();
     }
 
-    public MarketDataProvider(BlockingQueue<Object> priceUpdateChannel) {
+    public MarketDataProvider(BlockingQueue<PriceUpdateEvent> priceUpdateChannel) {
         this.priceUpdateChannel = priceUpdateChannel;
     }
 
-    public void runMarketDataProvider(){
+    public void runMarketDataProvider() {
         //TODO: if update exist, print new portfolio valuation
-        while(true) {
+        while (true) {
 
-            if ( marketTimer()) {
-                if(this.priceUpdateChannel.offer(new Object())) {
-                    System.out.println("/!\\----------[Market Data Provider] Sending Market Data update ----------/!\\");
+            if (marketTimer()) {;
+                PriceUpdateEvent priceUpdateEvent = new PriceUpdateEvent();
+                if (this.priceUpdateChannel.offer(priceUpdateEvent)) {
+                    System.out.println("/!\\----------[Market Data Provider] Sending Market Data update: " + priceUpdateEvent + " ----------/!\\");
                 } else {
-                    System.out.println("/!\\/!\\ ---------- Price Channel full, unable to insert price update. ----------/!\\/!\\");
+                    System.out.println("/!\\/!\\ ---------- Price Channel full, unable to insert price update " + priceUpdateEvent + ". ----------/!\\/!\\");
                 }
             }
         }

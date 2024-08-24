@@ -2,14 +2,14 @@ package com.assignement.realtimequoteviewer;
 
 import com.assignement.realtimequoteviewer.loader.PositionLoader;
 import com.assignement.realtimequoteviewer.model.Portfolio;
+import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
 
-import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class QuoteViewer {
 
-    private BlockingQueue priceUpdateChannel;
+    private BlockingQueue<PriceUpdateEvent> priceUpdateChannel;
     private Portfolio portfolio;
 
     QuoteViewer(String positionFilePath) {
@@ -17,7 +17,7 @@ public class QuoteViewer {
         this.priceUpdateChannel = new LinkedBlockingQueue<>();
     }
 
-    public QuoteViewer(String portfolioExtractPath, BlockingQueue<Object> priceUpdateChannel) {
+    public QuoteViewer(String portfolioExtractPath, BlockingQueue<PriceUpdateEvent> priceUpdateChannel) {
         this(portfolioExtractPath);
         this.priceUpdateChannel = priceUpdateChannel;
     }

@@ -1,5 +1,7 @@
 package com.assignement.realtimequoteviewer.provider;
 
+import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
+
 import java.util.concurrent.BlockingQueue;
 
 public class MarketDataProviderRunnable implements Runnable {
@@ -10,7 +12,7 @@ public class MarketDataProviderRunnable implements Runnable {
         this.marketDataProvider = new MarketDataProvider();
     }
 
-    public MarketDataProviderRunnable(BlockingQueue<Object> priceUpdateChannel) {
+    public MarketDataProviderRunnable(BlockingQueue<PriceUpdateEvent> priceUpdateChannel) {
 
         this.marketDataProvider = new MarketDataProvider(priceUpdateChannel);
     }

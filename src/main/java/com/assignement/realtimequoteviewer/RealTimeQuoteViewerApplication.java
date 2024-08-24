@@ -1,5 +1,6 @@
 package com.assignement.realtimequoteviewer;
 
+import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
 import com.assignement.realtimequoteviewer.model.Security;
 import com.assignement.realtimequoteviewer.provider.MarketDataProviderRunnable;
 import com.assignement.realtimequoteviewer.repository.SecurityRepository;
@@ -36,7 +37,7 @@ public class RealTimeQuoteViewerApplication {
         return args -> {
 
             System.out.println("Let's inspect the beans provided by Spring Boot:");
-            BlockingQueue<Object> priceUpdateChannel = new LinkedBlockingQueue<>();
+            BlockingQueue<PriceUpdateEvent> priceUpdateChannel = new LinkedBlockingQueue<>();
 
             String[] beanNames = ctx.getBeanDefinitionNames();
             Arrays.sort(beanNames);
