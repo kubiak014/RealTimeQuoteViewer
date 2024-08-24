@@ -18,6 +18,10 @@ public class Security {
     private Double lastStockPrice;
 
     @Getter
+    @Setter
+    private Double lastTradedPrice;
+
+    @Getter
     private String securityType;
     @Getter
     private Double stockReturn;
@@ -35,9 +39,10 @@ public class Security {
         this.securityType = securityType;
     }
 
-    public Security(String tickerId, Double lastStockPrice, String securityType, Double stockReturn, Double annualStdDev, Double strike, Integer maturity) {
+    public Security(String tickerId, Double lastStockPrice, Double lastTradedPrice, String securityType, Double stockReturn, Double annualStdDev, Double strike, Integer maturity) {
         this.tickerId = tickerId;
         this.lastStockPrice = lastStockPrice;
+        this.lastTradedPrice = lastTradedPrice;
         this.securityType = securityType;
         this.stockReturn = stockReturn;
         this.annualStdDev = annualStdDev;
@@ -50,6 +55,7 @@ public class Security {
         return "Security{" +
                 "tickerId='" + tickerId + '\'' +
                 ", lastStockPrice=" + lastStockPrice +
+                ", lastTradedPrice=" + lastTradedPrice +
                 ", securityType='" + securityType + '\'' +
                 ", stockReturn=" + stockReturn +
                 ", annualStdDev=" + annualStdDev +

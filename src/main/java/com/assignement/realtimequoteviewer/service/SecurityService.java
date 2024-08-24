@@ -17,32 +17,32 @@ public class SecurityService {
 
     private SecurityRepository securityRepository;
 
-    public SecurityService(){
+    public SecurityService() {
         this.securityCache = new HashMap<>();
     }
 
     @Autowired
-    public SecurityService(SecurityRepository securityRepository){
+    public SecurityService(SecurityRepository securityRepository) {
         this.securityRepository = securityRepository;
         this.securityCache = new HashMap<>();
     }
 
-    public Security retrieveSecurityByTickerID(String tickerID){
+    public Security retrieveSecurityByTickerID(String tickerID) {
 
-        if(this.securityCache.containsKey(tickerID)) return this.securityCache.get(tickerID);
+        if (this.securityCache.containsKey(tickerID)) return this.securityCache.get(tickerID);
 
         Security targetSecurity = this.securityRepository.findByTickerId(tickerID);
-        if(targetSecurity != null) {
+        if (targetSecurity != null) {
             this.securityCache.put(tickerID, targetSecurity);
-            return  targetSecurity;
-        }else {
+            return targetSecurity;
+        } else {
             System.out.println("Ticker ID {" + tickerID + "} NOT FOUND.");
-            return new Security();
+            return null;
         }
     }
 
-    public Security retrieveRandomSecurity(){
-        List<Security> securities = this.securityRepository.findAll();
+    public Security retrieveRandomStockSecurity() {
+        List<Security> securities = this.securityRepository.findAllBySecurityType("STOCK");
         int securitiesSize = securities.size();
 
         Security randomSecurity = securities.get((int) (Math.random() * securitiesSize));
@@ -51,11 +51,23 @@ public class SecurityService {
         return randomSecurity;
     }
 
-    public void updateLastPrice(String tickerId, BigDecimal newPrice) {
+    public void updateLastStockPrice(String tickerId, BigDecimal newPrice) {
 
         Security tobeUpdated = this.securityRepository.findByTickerId(tickerId);
         tobeUpdated.setLastStockPrice(newPrice.doubleValue());
+        tobeUpdated.setLastTradedPrice(newPrice.doubleValue());
         this.securityRepository.save(tobeUpdated);
+        this.securityCache.put(tobeUpdated.getTickerId(), tobeUpdated);
+
+    }
+
+    public void updateOptionPrice(String tickerId, BigDecimal newPrice, BigDecimal newStockPrice) {
+
+        Security tobeUpdated = this.securityRepository.findByTickerId(tickerId);
+        tobeUpdated.setLastStockPrice(newStockPrice.doubleValue());
+        tobeUpdated.setLastTradedPrice(newPrice.doubleValue());
+        this.securityRepository.save(tobeUpdated);
+        this.securityCache.put(tobeUpdated.getTickerId(), tobeUpdated);
 
     }
 }

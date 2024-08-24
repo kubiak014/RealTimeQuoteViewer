@@ -27,7 +27,6 @@ public class RealTimeQuoteViewerApplication {
     @Autowired
     private SecurityRepository securityRepository;
 
-
     public static void main(String[] args) {
         SpringApplication.run(RealTimeQuoteViewerApplication.class, args);
     }
@@ -58,8 +57,6 @@ public class RealTimeQuoteViewerApplication {
     }
 
     @Scheduled(fixedDelay = 1000)
-    public void run() {
-        System.out.println("Running");
-    }
+    public void run() {}
 
 }
