@@ -3,14 +3,12 @@ package com.assignement.realtimequoteviewer.service;
 import com.assignement.realtimequoteviewer.model.Security;
 import com.assignement.realtimequoteviewer.repository.SecurityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 public class SecurityService {
@@ -51,5 +49,13 @@ public class SecurityService {
         this.securityCache.put(randomSecurity.getTickerId(), randomSecurity);
 
         return randomSecurity;
+    }
+
+    public void updateLastPrice(String tickerId, BigDecimal newPrice) {
+
+        Security tobeUpdated = this.securityRepository.findByTickerId(tickerId);
+        tobeUpdated.setLastStockPrice(newPrice.doubleValue());
+        this.securityRepository.save(tobeUpdated);
+
     }
 }
