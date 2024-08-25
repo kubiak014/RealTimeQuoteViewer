@@ -128,7 +128,7 @@ public class MarketDataProvider {
         BigDecimal lastStockPrice = BigDecimal.valueOf(lastStockPriceValue);
         BigDecimal newStockPrice = lastStockPrice.add(lastStockPrice.multiply(annualReturnComponent.add(annualStdDevComponent)));
 
-        return BigDecimal.ZERO.max(newStockPrice);
+        return BigDecimal.ZERO.max(newStockPrice).setScale(4, RoundingMode.HALF_DOWN);
     }
 
 

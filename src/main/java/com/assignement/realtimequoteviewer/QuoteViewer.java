@@ -10,6 +10,7 @@ import com.assignement.realtimequoteviewer.repository.SecurityRepository;
 import com.assignement.realtimequoteviewer.service.SecurityService;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -68,14 +69,15 @@ public class QuoteViewer {
 
 
     private void printPortfolioValue() {
+        System.out.print(String.format("\033[2J"));
         System.out.println();
-        System.out.format("%-25s %10s %40s%n", "symbol", "qty", "value");
-        this.portfolio.getAssets().forEach(asset -> System.out.format("%-25s %10s %40s%n", asset.getTicker(), asset.getQuantity(), asset.getAssetValue()));
+        System.out.format("%-20s %10s %20s%n", "symbol", "qty", "value");
+        this.portfolio.getAssets().forEach(asset -> System.out.format("%-20s %10s %20s%n", asset.getTicker(), asset.getQuantity(), asset.getAssetValue()));
         double portfolioNAV = this.portfolio.getAssets().stream()
                 .mapToDouble(asset -> asset.getAssetValue().doubleValue())
                 .sum();
         System.out.println();
-        System.out.format("%-35s %40s%n", "#Total Portfolio", portfolioNAV);
+        System.out.format("%-30s %21s%n", "#Total Portfolio", BigDecimal.valueOf(portfolioNAV).setScale(2, RoundingMode.HALF_DOWN));
         System.out.println();
     }
 
@@ -101,21 +103,21 @@ public class QuoteViewer {
     }
 
     private void updatePortfolioValue(Asset asset, BigDecimal newUndlPrice, Security tobeUpdated) {
+        long quantity = asset.getQuantity().longValue();
+
         if (tobeUpdated.getSecurityType().equals("STOCK")) {
-            double newStockPrice = newUndlPrice.doubleValue();
-            long quantity = asset.getQuantity().longValue();
-            asset.setAssetValue(BigDecimal.valueOf(newStockPrice * quantity));
-            this.securityService.updateLastStockPrice(asset.getTicker(), BigDecimal.valueOf(newStockPrice));
+            asset.setAssetValue(BigDecimal.valueOf(newUndlPrice.doubleValue() * quantity).setScale(2, RoundingMode.HALF_DOWN));
+            this.securityService.updateLastStockPrice(asset.getTicker(), BigDecimal.valueOf(newUndlPrice.doubleValue()).setScale(4,  RoundingMode.HALF_DOWN));
 
         } else if (tobeUpdated.getSecurityType().equals("PUT")) {
             BigDecimal annualRiskFreeRate = BigDecimal.valueOf(0.02);
             double strikePrice = newUndlPrice.doubleValue() * tobeUpdated.getStrike();
             BigDecimal timeToExpiry = getTimeToExpiryYear(tobeUpdated);
             double putPrice = BlackScholesFormula.calculate(false, newUndlPrice.doubleValue(), strikePrice, annualRiskFreeRate.doubleValue(), timeToExpiry.doubleValue(), tobeUpdated.getAnnualStdDev());
-            long quantity = asset.getQuantity().longValue();
-            asset.setAssetValue(BigDecimal.valueOf(putPrice * quantity));
-            this.securityService.updateLastStockPrice(asset.getTicker(), newUndlPrice);
-            this.securityService.updateOptionPrice(asset.getTicker(), BigDecimal.valueOf(putPrice), newUndlPrice);
+
+            asset.setAssetValue(BigDecimal.valueOf(putPrice * quantity).setScale(2,  RoundingMode.HALF_DOWN));
+            this.securityService.updateLastStockPrice(asset.getTicker(), newUndlPrice.setScale(4,  RoundingMode.HALF_DOWN));
+            this.securityService.updateOptionPrice(asset.getTicker(), BigDecimal.valueOf(putPrice).setScale(4,  RoundingMode.HALF_DOWN), newUndlPrice.setScale(4, RoundingMode.HALF_DOWN));
 
 
         } else if (tobeUpdated.getSecurityType().equals("CALL")) {
@@ -124,10 +126,10 @@ public class QuoteViewer {
             double strikePrice = newUndlPrice.doubleValue() * tobeUpdated.getStrike();
             BigDecimal timeToExpiry = getTimeToExpiryYear(tobeUpdated);
             double callPrice = BlackScholesFormula.calculate(true, newUndlPrice.doubleValue(), strikePrice, annualRiskFreeRate.doubleValue(), timeToExpiry.doubleValue(), tobeUpdated.getAnnualStdDev());
-            long quantity = asset.getQuantity().longValue();
-            asset.setAssetValue(BigDecimal.valueOf(callPrice * quantity));
-            this.securityService.updateLastStockPrice(asset.getTicker(), newUndlPrice);
-            this.securityService.updateOptionPrice(asset.getTicker(), BigDecimal.valueOf(callPrice), newUndlPrice);
+
+            asset.setAssetValue(BigDecimal.valueOf(callPrice * quantity).setScale(2,  RoundingMode.HALF_DOWN));
+            this.securityService.updateLastStockPrice(asset.getTicker(), newUndlPrice.setScale(4,  RoundingMode.HALF_DOWN));
+            this.securityService.updateOptionPrice(asset.getTicker(), BigDecimal.valueOf(callPrice).setScale(4,  RoundingMode.HALF_DOWN), newUndlPrice.setScale(4, RoundingMode.HALF_DOWN));
         }
     }
 

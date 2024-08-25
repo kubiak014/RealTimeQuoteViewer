@@ -22,8 +22,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 @EnableScheduling
 public class RealTimeQuoteViewerApplication {
 
-    MarketDataProviderRunnable marketDataProviderRunnable;
-
     @Autowired
     private SecurityRepository securityRepository;
 
@@ -35,18 +33,8 @@ public class RealTimeQuoteViewerApplication {
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
         return args -> {
 
-            System.out.println("Let's inspect the beans provided by Spring Boot:");
             BlockingQueue<PriceUpdateEvent> priceUpdateChannel = new LinkedBlockingQueue<>();
-
-            String[] beanNames = ctx.getBeanDefinitionNames();
-            Arrays.sort(beanNames);
-            for (String beanName : beanNames) {
-                System.out.println(beanName);
-            }
-
-            marketDataProviderRunnable = new MarketDataProviderRunnable(priceUpdateChannel, securityRepository);
-            Thread thread = new Thread(marketDataProviderRunnable);
-            thread.start();
+            startMarketDataProviders(priceUpdateChannel, args);
 
             List<Security> securities = securityRepository.findAll();
             securities.forEach(security -> System.out.println("Security loaded from DB : " + security));
@@ -54,6 +42,15 @@ public class RealTimeQuoteViewerApplication {
             QuoteViewer quoteViewer = new QuoteViewer(args[0], priceUpdateChannel, securityRepository);
             quoteViewer.start();
         };
+    }
+
+    private void startMarketDataProviders(BlockingQueue<PriceUpdateEvent> priceUpdateChannel, String[] args) {
+        System.out.println("Starting MarketData Producer(s)....");
+        for(int i = 0; i < Integer.parseInt(args[1]); i++) {
+            MarketDataProviderRunnable marketDataProviderRunnable = new MarketDataProviderRunnable(priceUpdateChannel, securityRepository, "MarketDataProducer" + i);
+            Thread thread = new Thread(marketDataProviderRunnable );
+            thread.start();
+        }
     }
 
     @Scheduled(fixedDelay = 1000)
