@@ -72,8 +72,6 @@ public class BlackScholesFormula {
 
     public static double cumulativeDistribution(double x) {
 
-        //System.out.println(" in BlackScholesFormula:cumulativeDitibution(" + x + ")");
-
         double t = 1 / (1 + P * Math.abs(x));
         double t1 = B1 * Math.pow(t, 1);
         double t2 = B2 * Math.pow(t, 2);
@@ -92,7 +90,6 @@ public class BlackScholesFormula {
             resp = cd;
         }
 
-        //return x < 0 ? 1 - cd : cd;
         return resp;
     }
 
