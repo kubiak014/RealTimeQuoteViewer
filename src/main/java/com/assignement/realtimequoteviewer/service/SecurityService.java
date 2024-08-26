@@ -2,6 +2,8 @@ package com.assignement.realtimequoteviewer.service;
 
 import com.assignement.realtimequoteviewer.model.Security;
 import com.assignement.realtimequoteviewer.repository.SecurityRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ public class SecurityService {
     private Map<String, Security> securityCache;
 
     private SecurityRepository securityRepository;
+    private final Logger logger = LoggerFactory.getLogger(SecurityService.class);
 
     public SecurityService() {
         this.securityCache = new HashMap<>();
@@ -36,7 +39,7 @@ public class SecurityService {
             this.securityCache.put(tickerID, targetSecurity);
             return targetSecurity;
         } else {
-            System.out.println("Ticker ID {" + tickerID + "} NOT FOUND.");
+            this.logger.error("Ticker ID {" + tickerID + "} NOT FOUND.");
             return null;
         }
     }

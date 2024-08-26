@@ -5,6 +5,8 @@ import com.assignement.realtimequoteviewer.model.Security;
 import com.assignement.realtimequoteviewer.provider.MarketDataProviderRunnable;
 import com.assignement.realtimequoteviewer.repository.SecurityRepository;
 import com.assignement.realtimequoteviewer.service.SecurityService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -24,6 +26,8 @@ public class RealTimeQuoteViewerApplication {
 
     @Autowired
     private SecurityRepository securityRepository;
+
+    private final Logger logger = LoggerFactory.getLogger(RealTimeQuoteViewerApplication.class);
 
     public static void main(String[] args) {
         SpringApplication.run(RealTimeQuoteViewerApplication.class, args);
@@ -57,11 +61,11 @@ public class RealTimeQuoteViewerApplication {
 
     private void printExistingSecurities() {
         List<Security> securities = securityRepository.findAll();
-        securities.forEach(security -> System.out.println("Security loaded from DB : " + security));
+        securities.forEach(security -> logger.info("Security loaded from DB : " + security));
     }
 
     private void startMarketDataProviders(BlockingQueue<PriceUpdateEvent> priceUpdateChannel, int marketDataProviderCount) {
-        System.out.println("Starting MarketData Producer(s)....");
+        this.logger.info("Starting MarketData Producer(s)....");
         for (int i = 0; i < marketDataProviderCount; i++) {
             MarketDataProviderRunnable marketDataProviderRunnable = new MarketDataProviderRunnable(priceUpdateChannel, securityRepository, "MarketDataProducer" + i);
             Thread thread = new Thread(marketDataProviderRunnable);

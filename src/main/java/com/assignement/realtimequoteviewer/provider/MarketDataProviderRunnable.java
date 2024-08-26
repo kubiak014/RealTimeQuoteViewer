@@ -2,6 +2,8 @@ package com.assignement.realtimequoteviewer.provider;
 
 import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
 import com.assignement.realtimequoteviewer.repository.SecurityRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -9,6 +11,7 @@ public class MarketDataProviderRunnable implements Runnable {
 
     private final MarketDataProvider marketDataProvider ;
     private final String producerName;
+    private final Logger logger = LoggerFactory.getLogger(MarketDataProviderRunnable.class);
 
     public MarketDataProviderRunnable() {
         this.marketDataProvider = new MarketDataProvider();
@@ -38,7 +41,7 @@ public class MarketDataProviderRunnable implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Starting Market Data provider with name [ " + this.producerName + " ]");
+        this.logger.info("Starting Market Data provider with name [ " + this.producerName + " ]");
         this.marketDataProvider.runMarketDataProvider();
     }
 }

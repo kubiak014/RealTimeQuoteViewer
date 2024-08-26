@@ -1,6 +1,8 @@
 package com.assignement.realtimequoteviewer.utils;
 
 import com.assignement.realtimequoteviewer.model.Security;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -10,6 +12,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CalendarUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(CalendarUtils.class);
 
     public static BigDecimal getOptionTimeToExpiryYear(Security security) {
 
@@ -22,7 +26,7 @@ public class CalendarUtils {
         int month = getMonthValue(expiryMonth);
 
         if (month == -1) {
-            System.out.println("Unable to parse expiry Month - Aborting expiryCalculation");
+            logger.error("Unable to parse expiry Month - Aborting expiryCalculation");
             return null;
         }
 
@@ -41,7 +45,7 @@ public class CalendarUtils {
         try {
             date = new SimpleDateFormat("MMM", Locale.ENGLISH).parse(expiryMonth);
         } catch (ParseException e) {
-            System.out.println("UnsupportedMonth Format " + expiryMonth);
+            logger.error("UnsupportedMonth Format " + expiryMonth);
             return -1;
         }
         Calendar cal = Calendar.getInstance();

@@ -9,6 +9,8 @@ import com.assignement.realtimequoteviewer.service.SecurityService;
 import com.assignement.realtimequoteviewer.utils.PrettyPrintUtils;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +31,7 @@ public class MarketDataSubscriber {
     private SecurityService securityService;
 
     private CalculationService calculationService;
+    private final Logger logger = LoggerFactory.getLogger(MarketDataSubscriber.class);
 
     public MarketDataSubscriber() {
     }
@@ -44,7 +47,7 @@ public class MarketDataSubscriber {
         // if update exist, update/print new portfolio valuation
         if (this.priceUpdateChannel.peek() != null) {
             PriceUpdateEvent priceUpdate = this.priceUpdateChannel.poll();
-            System.out.println("/!\\---------- Market Data update Received " + priceUpdate + ", starting processing ----------/!\\");
+            this.logger.info("/!\\---------- Market Data update Received " + priceUpdate + ", starting processing ----------/!\\");
 
             List<Asset> assetsToBeUpdated = portfolio.getAssets().stream().filter(asset -> asset.getTicker().contains(priceUpdate.getTickerID())).collect(Collectors.toList());
             assetsToBeUpdated.forEach(asset -> {

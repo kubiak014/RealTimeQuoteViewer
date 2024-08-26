@@ -1,11 +1,14 @@
 package com.assignement.realtimequoteviewer.provider;
 
 
+import com.assignement.realtimequoteviewer.loader.PositionLoader;
 import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
 import com.assignement.realtimequoteviewer.model.Security;
 import com.assignement.realtimequoteviewer.repository.SecurityRepository;
 import com.assignement.realtimequoteviewer.service.CalculationService;
 import com.assignement.realtimequoteviewer.service.SecurityService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +19,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 @Component
 public class MarketDataProvider {
+    private final Logger logger = LoggerFactory.getLogger(MarketDataProvider.class);
 
     private final BlockingQueue<PriceUpdateEvent> priceUpdateChannel;
 
@@ -45,15 +49,12 @@ public class MarketDataProvider {
     }
 
     public void runMarketDataProvider() {
-        //TODO: if update exist, print new portfolio valuation
         while (true) {
-
             long timeInterval = sleeper();
             if (marketTimer()) {
-
                 PriceUpdateEvent priceUpdateEvent = createPriceUpdateEvent(timeInterval);
                 if (!this.priceUpdateChannel.offer(priceUpdateEvent)) {
-                    System.out.println("/!\\/!\\ ---------- Price Channel full, unable to insert price update " + priceUpdateEvent + ". ----------/!\\/!\\");
+                   this.logger.error("/!\\/!\\ ---------- Price Channel full, unable to insert price update " + priceUpdateEvent + ". ----------/!\\/!\\");
                 }
             }
         }

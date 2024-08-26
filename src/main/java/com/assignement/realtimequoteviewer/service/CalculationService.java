@@ -1,9 +1,12 @@
 package com.assignement.realtimequoteviewer.service;
 
+import com.assignement.realtimequoteviewer.loader.PositionLoader;
 import com.assignement.realtimequoteviewer.model.Asset;
 import com.assignement.realtimequoteviewer.model.Portfolio;
 import com.assignement.realtimequoteviewer.model.Security;
 import com.assignement.realtimequoteviewer.pricing.BlackScholesFormula;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,6 +15,8 @@ import java.util.Random;
 import static com.assignement.realtimequoteviewer.utils.CalendarUtils.getOptionTimeToExpiryYear;
 
 public class CalculationService {
+
+    private final Logger logger = LoggerFactory.getLogger(PositionLoader.class);
 
     private SecurityService securityService;
 
@@ -57,7 +62,7 @@ public class CalculationService {
                 double strikePrice = newUndlPrice.doubleValue() * tobeUpdated.getStrike();
                 newAssetPrice = BlackScholesFormula.calculate(true, newUndlPrice.doubleValue(), strikePrice, annualRiskFreeRate.doubleValue(), timeToExpiry.doubleValue(), tobeUpdated.getAnnualStdDev());
             } else {
-                System.out.println("Unsupported Security Type, no calculation performed for " + tobeUpdated.getTickerId() + ":" + tobeUpdated.getSecurityType());
+                this.logger.error("Unsupported Security Type, no calculation performed for " + tobeUpdated.getTickerId() + ":" + tobeUpdated.getSecurityType());
                 return;
             }
 
