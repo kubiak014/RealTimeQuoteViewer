@@ -4,6 +4,7 @@ import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
 import com.assignement.realtimequoteviewer.model.Security;
 import com.assignement.realtimequoteviewer.provider.MarketDataProviderRunnable;
 import com.assignement.realtimequoteviewer.repository.SecurityRepository;
+import com.assignement.realtimequoteviewer.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -13,7 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -33,27 +33,44 @@ public class RealTimeQuoteViewerApplication {
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
         return args -> {
 
+            printExistingSecurities();
             BlockingQueue<PriceUpdateEvent> priceUpdateChannel = new LinkedBlockingQueue<>();
-            startMarketDataProviders(priceUpdateChannel, args);
+            int providerCount = getProviderCount(args);
 
-            List<Security> securities = securityRepository.findAll();
-            securities.forEach(security -> System.out.println("Security loaded from DB : " + security));
+            startMarketDataProviders(priceUpdateChannel, providerCount);
+            SecurityService securityService = new SecurityService(this.securityRepository);
 
-            QuoteViewer quoteViewer = new QuoteViewer(args[0], priceUpdateChannel, securityRepository);
+            QuoteViewer quoteViewer = new QuoteViewer(args[0], priceUpdateChannel, securityService);
             quoteViewer.start();
         };
     }
 
-    private void startMarketDataProviders(BlockingQueue<PriceUpdateEvent> priceUpdateChannel, String[] args) {
+    private static int getProviderCount(String[] args) {
+        int providerCount;
+        if (args.length >= 2) {
+            providerCount = Integer.parseInt(args[1]);
+        } else {
+            providerCount = 1;
+        }
+        return providerCount;
+    }
+
+    private void printExistingSecurities() {
+        List<Security> securities = securityRepository.findAll();
+        securities.forEach(security -> System.out.println("Security loaded from DB : " + security));
+    }
+
+    private void startMarketDataProviders(BlockingQueue<PriceUpdateEvent> priceUpdateChannel, int marketDataProviderCount) {
         System.out.println("Starting MarketData Producer(s)....");
-        for(int i = 0; i < Integer.parseInt(args[1]); i++) {
+        for (int i = 0; i < marketDataProviderCount; i++) {
             MarketDataProviderRunnable marketDataProviderRunnable = new MarketDataProviderRunnable(priceUpdateChannel, securityRepository, "MarketDataProducer" + i);
-            Thread thread = new Thread(marketDataProviderRunnable );
+            Thread thread = new Thread(marketDataProviderRunnable);
             thread.start();
         }
     }
 
     @Scheduled(fixedDelay = 1000)
-    public void run() {}
+    public void run() {
+    }
 
 }

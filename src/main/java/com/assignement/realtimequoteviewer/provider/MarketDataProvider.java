@@ -4,12 +4,12 @@ package com.assignement.realtimequoteviewer.provider;
 import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
 import com.assignement.realtimequoteviewer.model.Security;
 import com.assignement.realtimequoteviewer.repository.SecurityRepository;
+import com.assignement.realtimequoteviewer.service.CalculationService;
 import com.assignement.realtimequoteviewer.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,14 +17,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Component
 public class MarketDataProvider {
 
-    private BlockingQueue<PriceUpdateEvent> priceUpdateChannel;
+    private final BlockingQueue<PriceUpdateEvent> priceUpdateChannel;
 
     @Autowired
     private SecurityService securityService;
 
+    private CalculationService calculationService;
+
     public MarketDataProvider(BlockingQueue<PriceUpdateEvent> priceUpdateChannel, SecurityService securityService) {
         this.priceUpdateChannel = priceUpdateChannel;
         this.securityService = securityService;
+        this.calculationService = new CalculationService(securityService);
     }
 
     public MarketDataProvider() {
@@ -38,6 +41,7 @@ public class MarketDataProvider {
     public MarketDataProvider(BlockingQueue<PriceUpdateEvent> priceUpdateChannel, SecurityRepository securityRepository) {
         this.priceUpdateChannel = priceUpdateChannel;
         this.securityService = new SecurityService(securityRepository);
+        this.calculationService = new CalculationService(securityService);
     }
 
     public void runMarketDataProvider() {
@@ -57,78 +61,9 @@ public class MarketDataProvider {
 
     private PriceUpdateEvent createPriceUpdateEvent(long timeInterval) {
         Security security = securityService.retrieveRandomStockSecurity();
-        BigDecimal undlNewSpotPrice = calculateStockPrice(security.getLastStockPrice(), security.getStockReturn(), security.getAnnualStdDev(), timeInterval);
-
-        securityService.updateLastStockPrice(security.getTickerId(), undlNewSpotPrice);
+        BigDecimal undlNewSpotPrice = calculationService.calculateStockPrice(security.getLastStockPrice(), security.getStockReturn(), security.getAnnualStdDev(), timeInterval);
         return new PriceUpdateEvent(security.getTickerId(), undlNewSpotPrice);
 
-    }
-
-//    private BigDecimal calculateOptionPrice(BigDecimal newStockPrice, BigDecimal maturity, Double strikeValue, Double annualStdDevValue, String securityTypeValue) {
-//
-//        BigDecimal annualRiskFreeRate = BigDecimal.valueOf(0.02);
-//        BigDecimal strike = BigDecimal.valueOf(strikeValue);
-//        BigDecimal annualStdDev = BigDecimal.valueOf(annualStdDevValue);
-//
-//
-//        if(securityTypeValue.equalsIgnoreCase("PUT")) {
-//            return computePutOptionPrice(newStockPrice,strike,annualRiskFreeRate,maturity,annualStdDev);
-//        }else if(securityTypeValue.equalsIgnoreCase("CALL")){
-//            return computeCallOptionPrice(newStockPrice,strike,annualRiskFreeRate,maturity,annualStdDev);
-//        }else{
-//            System.out.println("Unsupported Type of security for option pricing: " + securityTypeValue);
-//            return BigDecimal.ZERO;
-//        }
-//
-//    }
-
-//    private BigDecimal getTimeToExpiryYear(Security security) {
-//
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(new Date());
-//        Date currentDate = calendar.getTime();
-//
-//        String expiryMonth = security.getTickerId().split("-")[1];
-//        String expiryYear = security.getTickerId().split("-")[2];
-//        calendar.set(Integer.parseInt(expiryYear), getMonthValue(expiryMonth), 1);
-//        Date expiryDate = calendar.getTime();
-//
-//        float expiryInYears = (expiryDate.getTime() - currentDate.getTime()) / (1000f * 60 * 60 * 24 * 365);
-//
-//        return BigDecimal.valueOf(expiryInYears);
-//
-//    }
-
-//    private int getMonthValue(String expiryMonth) {
-//        Date date = null;
-//        try {
-//            date = new SimpleDateFormat("MMM", Locale.ENGLISH).parse(expiryMonth);
-//        } catch (ParseException e) {
-//            throw new RuntimeException(e);
-//        }
-//        Calendar cal = Calendar.getInstance();
-//        cal.setTime(date);
-//        return cal.get(Calendar.MONTH);
-//    }
-
-
-    private BigDecimal calculateStockPrice(double lastStockPriceValue, double annualReturnValue, double annualReturnStdDevValue, long timeIntervalMillis) {
-
-        Random randomGenerator = new Random();
-        BigDecimal randomValue = BigDecimal.valueOf(randomGenerator.nextGaussian());
-        BigDecimal annualReturn = BigDecimal.valueOf(annualReturnValue);
-        BigDecimal annualReturnStdDev = BigDecimal.valueOf(annualReturnStdDevValue);
-        BigDecimal timeInterval = BigDecimal.valueOf(timeIntervalMillis).divide(BigDecimal.valueOf(1000), 1000, RoundingMode.HALF_DOWN);
-
-        BigDecimal annualReturnComponent = annualReturn.multiply(timeInterval.divide(BigDecimal.valueOf(7257600), 10, RoundingMode.HALF_DOWN));
-
-        BigDecimal sqrtTimeValue = BigDecimal.valueOf(Math.sqrt(timeInterval.divide(BigDecimal.valueOf(7257600), 10, RoundingMode.HALF_DOWN).doubleValue()));
-        BigDecimal annualStdDevComponent = annualReturnStdDev.multiply(randomValue).multiply(sqrtTimeValue);
-
-        BigDecimal lastStockPrice = BigDecimal.valueOf(lastStockPriceValue);
-        BigDecimal newStockPrice = lastStockPrice.add(lastStockPrice.multiply(annualReturnComponent.add(annualStdDevComponent)));
-
-        return BigDecimal.ZERO.max(newStockPrice).setScale(4, RoundingMode.HALF_DOWN);
     }
 
 

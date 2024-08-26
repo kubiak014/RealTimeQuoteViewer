@@ -52,7 +52,7 @@ public class SecurityService {
     }
 
     public void updateLastStockPrice(String tickerId, BigDecimal newPrice) {
-
+        //TODO review this logic, all securities stock price to update?
         Security tobeUpdated = this.securityRepository.findByTickerId(tickerId);
         tobeUpdated.setLastStockPrice(newPrice.doubleValue());
         tobeUpdated.setLastTradedPrice(newPrice.doubleValue());
