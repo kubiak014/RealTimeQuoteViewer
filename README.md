@@ -36,5 +36,5 @@
 <p>
     in Console run, under base directory or project run: "gradle build"
 </p>
-
+![Alt text](Gradle_console_build.PNG)
 
