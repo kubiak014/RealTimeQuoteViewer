@@ -34,14 +34,15 @@
 <h2>Running / configuring the app </h2>
 <h3>Build with gradle</h3>
 <p>
-    In Console under base directory or project, run:<br/> "gradle build"
+    In Console under base directory or project, run:<br/> 
+    <code>gradle build</code>
     <br/><i>Local manual gradle build evidence in Gradle_console_build.PNG</i> 
 </p>
 
 <h3>Start the application</h3>
 <p>
     In Console under base directory or project, run:<br/> 
-    "gradlew.bat bootRun --args='./testFiles/portfolioPosition.csv'"
+    <code>gradlew.bat bootRun --args="./testFiles/portfolioPosition.csv"</code>
     <br/><i>Local startup evidence in  Gradle_console_start.PNG</i>
 </p>
 
@@ -49,6 +50,12 @@
 <ul>
     <li>Underlying static data as annual return / return std dev can be updated in the data.sql file to be loaded at startup</li>
     <li>Initial Portfolio has to be passed in the command line as argument</li>
+    <li>Strike has not been stored in DB as static data, it is parsed from the security ticker directly in the case of an option security</li>
 </ul>
 
+<h2>Further notes</h2>
+<p>
+    Scaling up market provider can be done by adding an addition argument when starting the program: <br/>
+    <code>gradlew.bat bootRun --args="./testFiles/portfolioPosition.csv 10"</code>
+</p>
 
