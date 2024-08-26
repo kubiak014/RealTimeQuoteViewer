@@ -1,21 +1,11 @@
 package com.assignement.realtimequoteviewer.pricing;
 
 /**
- * The Black–Scholes formula, which gives a theoretical estimate of
- * the price of European-style options.
- * <p>
- * The model was first articulated by Fischer Black and Myron Scholes in
- * their 1973 paper, "The Pricing of Options and Corporate Liabilities",
- * published in the Journal of Political Economy. They derived a stochastic
- * partial differential equation, now called the Black–Scholes equation,
- * which governs the price of the option over time.
- *
- * @author mblackford - M. Bret Blackford (credit to Dhruba Bandopadhyay)
+ *BlackScholes I
  */
 public class BlackScholesFormula {
 
-    // The Abramowitz & Stegun (1964) numerical approximation
-    // below uses six constant values in its formula.
+    // The SND numerical approximation below uses six constant values in its formula.
     private static final double P = 0.2316419;
     private static final double B1 = 0.319381530;
     private static final double B2 = -0.356563782;
@@ -35,9 +25,6 @@ public class BlackScholesFormula {
     public static double calculate(boolean callOption, double s, double k,
                                    double r, double t, double v) {
 
-        //System.out.println("    ----- ");
-        //System.out.println(" in BlackScholesFormula:calculate(" + callOption + "," + s + "," + k + "," + r + "," + t + "," + v);
-
         double blackScholesOptionPrice = 0.0;
 
         if (callOption) {
@@ -51,10 +38,6 @@ public class BlackScholesFormula {
 
             blackScholesOptionPrice = k * Math.exp(-r * t) * cd2 - s * cd1;
         }
-
-//        System.out.print("in BlackScholesFormula.callOption() result-[" + blackScholesOptionPrice + "] ");
-//        System.out.println("  callOption-" + callOption + ", spot-" + s + ", strike-" + k + ", r-" + r + ", T-" + t + ", v-" + v);
-
         return blackScholesOptionPrice;
     }
 
@@ -114,16 +97,11 @@ public class BlackScholesFormula {
     }
 
     /**
-     * The Abramowitz & Stegun numerical approximation above uses six constant
-     * values in its formula. However it also relies on another function in turn
-     * – the standard normal probability density function (PDF)
-     *
      * @param x
      * @return
      */
     public static double standardNormalDistribution(double x) {
 
-        //System.out.println(" in BlackScholesFormula:standardNormalDistribution(" + x + ")");
         double top = Math.exp(-0.5 * Math.pow(x, 2));
         double bottom = Math.sqrt(2 * Math.PI);
         double resp = top / bottom;
