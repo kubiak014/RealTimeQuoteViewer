@@ -32,8 +32,7 @@ public class CalculationService {
         portfolio.getAssets().forEach(asset -> {
             String assetTicker = asset.getTicker();
             Security tobeUpdated = this.securityService.retrieveSecurityByTickerID(assetTicker);
-            BigDecimal newUndlPrice = BigDecimal.valueOf(tobeUpdated.getLastTradedPrice());
-            updatePortfolioValue(asset, newUndlPrice, tobeUpdated);
+            asset.setAssetValue(BigDecimal.valueOf(tobeUpdated.getLastTradedPrice() * asset.getQuantity().doubleValue()));
 
         });
         portfolio.calculatePortfolioNAV();
@@ -42,10 +41,8 @@ public class CalculationService {
 
     public void updatePortfolioValue(Asset asset, BigDecimal newUndlPrice, Security tobeUpdated) {
         long quantity = asset.getQuantity().longValue();
-        double newAssetPrice = 0.0;
-
+        double newAssetPrice;
         BigDecimal annualRiskFreeRate = BigDecimal.valueOf(0.02);
-
 
         if (tobeUpdated.getSecurityType().equals("STOCK")) {
             asset.setAssetValue(BigDecimal.valueOf(newUndlPrice.doubleValue() * quantity).setScale(2, RoundingMode.HALF_DOWN));
@@ -54,12 +51,12 @@ public class CalculationService {
 
             if (tobeUpdated.getSecurityType().equals("PUT")) {
                 BigDecimal timeToExpiry = getOptionTimeToExpiryYear(tobeUpdated);
-                double strikePrice = newUndlPrice.doubleValue() * tobeUpdated.getStrike();
+                double strikePrice = getOptionStrikePrice(asset);
                 newAssetPrice = BlackScholesFormula.calculate(false, newUndlPrice.doubleValue(), strikePrice, annualRiskFreeRate.doubleValue(), timeToExpiry.doubleValue(), tobeUpdated.getAnnualStdDev());
 
             } else if (tobeUpdated.getSecurityType().equals("CALL")) {
                 BigDecimal timeToExpiry = getOptionTimeToExpiryYear(tobeUpdated);
-                double strikePrice = newUndlPrice.doubleValue() * tobeUpdated.getStrike();
+                double strikePrice = getOptionStrikePrice(asset);
                 newAssetPrice = BlackScholesFormula.calculate(true, newUndlPrice.doubleValue(), strikePrice, annualRiskFreeRate.doubleValue(), timeToExpiry.doubleValue(), tobeUpdated.getAnnualStdDev());
             } else {
                 this.logger.error("Unsupported Security Type, no calculation performed for " + tobeUpdated.getTickerId() + ":" + tobeUpdated.getSecurityType());
@@ -71,6 +68,11 @@ public class CalculationService {
             asset.setAssetValue(BigDecimal.valueOf(newAssetPrice * quantity).setScale(2, RoundingMode.HALF_DOWN));
         }
 
+    }
+
+    private static double getOptionStrikePrice(Asset asset) {
+
+        return Double.parseDouble(asset.getTicker().split("-")[3]);
     }
 
     public BigDecimal calculateStockPrice(double lastStockPriceValue, double annualReturnValue, double annualReturnStdDevValue, long timeIntervalMillis) {

@@ -28,8 +28,6 @@ public class Security {
     @Getter
     private Double annualStdDev;
     @Getter
-    private Double strike;
-    @Getter
     private Integer maturity;
 
     public Security() {
@@ -40,14 +38,13 @@ public class Security {
         this.securityType = securityType;
     }
 
-    public Security(String tickerId, Double lastStockPrice, Double lastTradedPrice, String securityType, Double stockReturn, Double annualStdDev, Double strike, Integer maturity) {
+    public Security(String tickerId, Double lastStockPrice, Double lastTradedPrice, String securityType, Double stockReturn, Double annualStdDev, Integer maturity) {
         this.tickerId = tickerId;
         this.lastStockPrice = lastStockPrice;
         this.lastTradedPrice = lastTradedPrice;
         this.securityType = securityType;
         this.stockReturn = stockReturn;
         this.annualStdDev = annualStdDev;
-        this.strike = strike;
         this.maturity = maturity;
     }
 
@@ -60,7 +57,6 @@ public class Security {
                 ", securityType='" + securityType + '\'' +
                 ", stockReturn=" + stockReturn +
                 ", annualStdDev=" + annualStdDev +
-                ", strike=" + strike +
                 ", maturity=" + maturity +
                 '}';
     }

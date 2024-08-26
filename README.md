@@ -34,7 +34,21 @@
 <h2>Running / configuring the app </h2>
 <h3>Build with gradle</h3>
 <p>
-    in Console run, under base directory or project run: "gradle build"
+    In Console under base directory or project, run:<br/> "gradle build"
+    <br/><i>Local manual gradle build evidence in Gradle_console_build.PNG</i> 
 </p>
-![Alt text](Gradle_console_build.PNG)
+
+<h3>Start the application</h3>
+<p>
+    In Console under base directory or project, run:<br/> 
+    "gradlew.bat bootRun --args='./testFiles/portfolioPosition.csv'"
+    <br/><i>Local startup evidence in  Gradle_console_start.PNG</i>
+</p>
+
+<h3>Static data config</h3>
+<ul>
+    <li>Underlying static data as annual return / return std dev can be updated in the data.sql file to be loaded at startup</li>
+    <li>Initial Portfolio has to be passed in the command line as argument</li>
+</ul>
+
 

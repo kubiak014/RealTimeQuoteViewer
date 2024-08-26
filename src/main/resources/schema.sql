@@ -6,7 +6,6 @@ create table SECURITY
     LAST_TRADED_PRICE decimal(10, 5) not null,
     STOCK_RETURN      decimal(5, 2),
     ANNUAL_STD_DEV    decimal(5, 2),
-    STRIKE            decimal(5, 2),
     MATURITY          int,
     PRIMARY KEY (TICKER_ID)
 );
