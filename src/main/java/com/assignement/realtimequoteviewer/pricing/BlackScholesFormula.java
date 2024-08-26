@@ -1,5 +1,8 @@
 package com.assignement.realtimequoteviewer.pricing;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  *BlackScholes I
  */
@@ -13,61 +16,35 @@ public class BlackScholesFormula {
     private static final double B4 = -1.821255978;
     private static final double B5 = 1.330274429;
 
-    /**
-     * @param callOption boolean true/false
-     * @param s          = Spot price of underlying stock/asset
-     * @param k          = Strike price
-     * @param r          = Risk free annual interest rate continuously compounded
-     * @param t          = Time in years until option expiration (maturity)
-     * @param v          = Implied volatility of returns of underlying stock/asset
-     * @return
-     */
-    public static double calculate(boolean callOption, double s, double k,
-                                   double r, double t, double v) {
+    public static BigDecimal calculate(boolean callOption, double spotPrice, double strikePrice,
+                                   double riskFreeRate, double timeToExpiry, double returnsImpliedVol) {
 
-        double blackScholesOptionPrice = 0.0;
+        double blackScholesOptionPrice;
 
         if (callOption) {
-            double cd1 = cumulativeDistribution(d1(s, k, r, t, v));
-            double cd2 = cumulativeDistribution(d2(s, k, r, t, v));
+            double cd1 = cumulativeDistribution(d1(spotPrice, strikePrice, riskFreeRate, timeToExpiry, returnsImpliedVol));
+            double cd2 = cumulativeDistribution(d2(spotPrice, strikePrice, riskFreeRate, timeToExpiry, returnsImpliedVol));
 
-            blackScholesOptionPrice = s * cd1 - k * Math.exp(-r * t) * cd2;
+            blackScholesOptionPrice = spotPrice * cd1 - strikePrice * Math.exp(-riskFreeRate * timeToExpiry) * cd2;
         } else {
-            double cd1 = cumulativeDistribution(-d1(s, k, r, t, v));
-            double cd2 = cumulativeDistribution(-d2(s, k, r, t, v));
+            double cd1 = cumulativeDistribution(-d1(spotPrice, strikePrice, riskFreeRate, timeToExpiry, returnsImpliedVol));
+            double cd2 = cumulativeDistribution(-d2(spotPrice, strikePrice, riskFreeRate, timeToExpiry, returnsImpliedVol));
 
-            blackScholesOptionPrice = k * Math.exp(-r * t) * cd2 - s * cd1;
+            blackScholesOptionPrice = strikePrice * Math.exp(-riskFreeRate * timeToExpiry) * cd2 - spotPrice * cd1;
         }
-        return blackScholesOptionPrice;
+        return BigDecimal.valueOf(blackScholesOptionPrice).setScale(4, RoundingMode.HALF_DOWN);
     }
 
+    private static double d1(double spotPrice, double strikePrice, double riskFreeRate, double timeToExpiry, double returnsImpliedVol) {
 
-    /**
-     * @param s = Spot price of underlying stock/asset
-     * @param k = Strike price
-     * @param r = Risk free annual interest rate continuously compounded
-     * @param t = Time in years until option expiration (maturity)
-     * @param v = Implied volatility of returns of underlying stock/asset
-     * @return
-     */
-    private static double d1(double s, double k, double r, double t, double v) {
-
-        double top = Math.log(s / k) + (r + Math.pow(v, 2) / 2) * t;
-        double bottom = v * Math.sqrt(t);
+        double top = Math.log(spotPrice / strikePrice) + (riskFreeRate + Math.pow(returnsImpliedVol, 2) / 2) * timeToExpiry;
+        double bottom = returnsImpliedVol * Math.sqrt(timeToExpiry);
 
         return top / bottom;
     }
 
-    /**
-     * @param s = Spot price of underlying stock/asset
-     * @param k = Strike price
-     * @param r = Risk free annual interest rate continuously compounded
-     * @param t = Time in years until option expiration (maturity)
-     * @param v = Implied volatility of returns of underlying stock/asset
-     * @return
-     */
-    private static double d2(double s, double k, double r, double t, double v) {
-        return d1(s, k, r, t, v) - v * Math.sqrt(t);
+    private static double d2(double spotPrice, double strikePrice, double riskFreeRate, double timeToExpiry, double returnsImpliedVol) {
+        return d1(spotPrice, strikePrice, riskFreeRate, timeToExpiry, returnsImpliedVol) - returnsImpliedVol * Math.sqrt(timeToExpiry);
     }
 
     public static double cumulativeDistribution(double x) {
@@ -93,10 +70,6 @@ public class BlackScholesFormula {
         return resp;
     }
 
-    /**
-     * @param x
-     * @return
-     */
     public static double standardNormalDistribution(double x) {
 
         double top = Math.exp(-0.5 * Math.pow(x, 2));

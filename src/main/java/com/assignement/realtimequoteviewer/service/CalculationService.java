@@ -40,13 +40,13 @@ public class CalculationService {
     }
 
     public void updateAssetValue(Asset asset, BigDecimal newUndlPrice, Security tobeUpdated) {
-        long quantity = asset.getQuantity().longValue();
-        double newAssetPrice;
+        BigDecimal quantity = BigDecimal.valueOf(asset.getQuantity().longValue());
+        BigDecimal newAssetPrice;
         BigDecimal annualRiskFreeRate = BigDecimal.valueOf(0.02);
 
         if (tobeUpdated.getSecurityType().equals("STOCK")) {
-            asset.setAssetValue(BigDecimal.valueOf(newUndlPrice.doubleValue() * quantity).setScale(2, RoundingMode.HALF_DOWN));
-            this.securityService.updateLastStockPrice(asset.getTicker(), BigDecimal.valueOf(newUndlPrice.doubleValue()).setScale(4, RoundingMode.HALF_DOWN));
+            asset.setAssetValue(newUndlPrice.multiply(quantity).setScale(2, RoundingMode.HALF_DOWN));
+            this.securityService.updateLastStockPrice(asset.getTicker(), newUndlPrice);
         } else {
 
             if (tobeUpdated.getSecurityType().equals("PUT")) {
@@ -63,9 +63,9 @@ public class CalculationService {
                 return;
             }
 
-            this.securityService.updateLastStockPrice(asset.getTicker(), newUndlPrice.setScale(4, RoundingMode.HALF_DOWN));
-            this.securityService.updateOptionPrice(asset.getTicker(), BigDecimal.valueOf(newAssetPrice).setScale(4, RoundingMode.HALF_DOWN), newUndlPrice.setScale(4, RoundingMode.HALF_DOWN));
-            asset.setAssetValue(BigDecimal.valueOf(newAssetPrice * quantity).setScale(2, RoundingMode.HALF_DOWN));
+            this.securityService.updateLastStockPrice(asset.getTicker(), newUndlPrice);
+            this.securityService.updateOptionPrice(asset.getTicker(), newAssetPrice, newUndlPrice);
+            asset.setAssetValue(newAssetPrice.multiply(quantity).setScale(2, RoundingMode.HALF_DOWN));
         }
 
     }

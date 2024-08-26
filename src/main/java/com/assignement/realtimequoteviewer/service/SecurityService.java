@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +58,8 @@ public class SecurityService {
     public void updateLastStockPrice(String tickerId, BigDecimal newPrice) {
         //TODO review this logic, all securities stock price to update?
         Security tobeUpdated = this.securityRepository.findByTickerId(tickerId);
-        tobeUpdated.setLastStockPrice(newPrice.doubleValue());
-        tobeUpdated.setLastTradedPrice(newPrice.doubleValue());
+        tobeUpdated.setLastStockPrice(newPrice.setScale(4, RoundingMode.HALF_DOWN).doubleValue());
+        tobeUpdated.setLastTradedPrice(newPrice.setScale(4, RoundingMode.HALF_DOWN).doubleValue());
         this.securityRepository.save(tobeUpdated);
         this.securityCache.put(tobeUpdated.getTickerId(), tobeUpdated);
 
