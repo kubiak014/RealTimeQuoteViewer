@@ -36,6 +36,11 @@ public class RealTimeQuoteViewerApplication {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
         return args -> {
+            if(args.length < 1) {
+                logger.error("Missing argument to start QuoteViewer Application.");
+                logger.error("Minimum Required param is the initial Portfolio path to be imported.");
+                return;
+            }
 
             printExistingSecurities();
             BlockingQueue<PriceUpdateEvent> priceUpdateChannel = new LinkedBlockingQueue<>();
