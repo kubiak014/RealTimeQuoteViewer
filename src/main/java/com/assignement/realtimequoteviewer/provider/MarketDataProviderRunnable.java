@@ -9,7 +9,7 @@ import java.util.concurrent.BlockingQueue;
 
 public class MarketDataProviderRunnable implements Runnable {
 
-    private final MarketDataProvider marketDataProvider ;
+    private final MarketDataProvider marketDataProvider;
     private final String producerName;
     private final Logger logger = LoggerFactory.getLogger(MarketDataProviderRunnable.class);
 

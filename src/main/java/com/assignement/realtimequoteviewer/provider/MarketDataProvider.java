@@ -1,7 +1,6 @@
 package com.assignement.realtimequoteviewer.provider;
 
 
-import com.assignement.realtimequoteviewer.loader.PositionLoader;
 import com.assignement.realtimequoteviewer.model.PriceUpdateEvent;
 import com.assignement.realtimequoteviewer.model.Security;
 import com.assignement.realtimequoteviewer.repository.SecurityRepository;
@@ -54,7 +53,7 @@ public class MarketDataProvider {
             if (marketTimer()) {
                 PriceUpdateEvent priceUpdateEvent = createPriceUpdateEvent(timeInterval);
                 if (!this.priceUpdateChannel.offer(priceUpdateEvent)) {
-                   this.logger.error("/!\\/!\\ ---------- Price Channel full, unable to insert price update " + priceUpdateEvent + ". ----------/!\\/!\\");
+                    this.logger.error("/!\\/!\\ ---------- Price Channel full, unable to insert price update " + priceUpdateEvent + ". ----------/!\\/!\\");
                 }
             }
         }

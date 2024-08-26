@@ -17,20 +17,20 @@ public class Portfolio {
     @Getter
     private BigDecimal portfolioNav;
 
-    public Portfolio(){
+    public Portfolio() {
         this.assets = new ArrayList<>();
         this.portfolioNav = BigDecimal.ZERO;
     }
 
-    public Portfolio(List<Asset> assets){
+    public Portfolio(List<Asset> assets) {
         this.assets = assets;
     }
 
-    public void calculatePortfolioNAV(){
+    public void calculatePortfolioNAV() {
 
-        this.portfolioNav = BigDecimal.valueOf( this.assets.stream()
-                        .mapToDouble(asset -> asset.getAssetValue().doubleValue())
-                        .sum()).setScale(2, RoundingMode.HALF_DOWN);
+        this.portfolioNav = BigDecimal.valueOf(this.assets.stream()
+                .mapToDouble(asset -> asset.getAssetValue().doubleValue())
+                .sum()).setScale(2, RoundingMode.HALF_DOWN);
 
     }
 

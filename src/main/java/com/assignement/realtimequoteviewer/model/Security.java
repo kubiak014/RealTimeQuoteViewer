@@ -32,7 +32,8 @@ public class Security {
     @Getter
     private Integer maturity;
 
-    public Security(){}
+    public Security() {
+    }
 
     public Security(String tickerId, String securityType) {
         this.tickerId = tickerId;

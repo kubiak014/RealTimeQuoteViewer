@@ -8,5 +8,6 @@ import java.util.List;
 public interface SecurityRepository extends JpaRepository<Security, String> {
 
     Security findByTickerId(String tickerId);
+
     List<Security> findAllBySecurityType(String securityType);
 }

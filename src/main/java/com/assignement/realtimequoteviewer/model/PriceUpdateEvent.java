@@ -21,7 +21,7 @@ public class PriceUpdateEvent {
     @Getter
     private LocalDateTime updateDatetime;
 
-    public PriceUpdateEvent(){
+    public PriceUpdateEvent() {
         this.tickerID = "UNKNOWN";
         this.newPrice = BigDecimal.ZERO;
         this.updateDatetime = LocalDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.MIDNIGHT);

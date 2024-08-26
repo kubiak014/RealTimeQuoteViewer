@@ -20,7 +20,7 @@ public class Asset {
     @Setter
     private BigDecimal assetValue;
 
-    public Asset(String ticker, String quantity){
+    public Asset(String ticker, String quantity) {
         this.ticker = ticker;
         this.quantity = new BigInteger(quantity);
     }
