@@ -42,6 +42,12 @@ public class MarketDataSubscriber {
         this.calculationService = new CalculationService(securityService);
     }
 
+    public MarketDataSubscriber(BlockingQueue<PriceUpdateEvent> priceUpdateChannel, SecurityService securityService, CalculationService calculationService) {
+        this.priceUpdateChannel = priceUpdateChannel;
+        this.securityService = securityService;
+        this.calculationService = calculationService;
+    }
+
     public Portfolio monitorMarketUpdate(Portfolio portfolio) {
 
         // if update exist, update/print new portfolio valuation
@@ -54,7 +60,7 @@ public class MarketDataSubscriber {
                 String assetTicker = asset.getTicker();
                 BigDecimal newUndlPrice = priceUpdate.getNewPrice();
                 Security tobeUpdated = this.securityService.retrieveSecurityByTickerID(assetTicker);
-                calculationService.updatePortfolioValue(asset, newUndlPrice, tobeUpdated);
+                calculationService.updateAssetValue(asset, newUndlPrice, tobeUpdated);
 
             });
             PrettyPrintUtils.printPortfolio(portfolio);

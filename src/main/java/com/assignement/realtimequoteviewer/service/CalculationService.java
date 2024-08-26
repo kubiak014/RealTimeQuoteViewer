@@ -39,7 +39,7 @@ public class CalculationService {
         return portfolio;
     }
 
-    public void updatePortfolioValue(Asset asset, BigDecimal newUndlPrice, Security tobeUpdated) {
+    public void updateAssetValue(Asset asset, BigDecimal newUndlPrice, Security tobeUpdated) {
         long quantity = asset.getQuantity().longValue();
         double newAssetPrice;
         BigDecimal annualRiskFreeRate = BigDecimal.valueOf(0.02);

@@ -47,81 +47,45 @@ public class MarketDataProvider {
         this.calculationService = new CalculationService(securityService);
     }
 
+    public MarketDataProvider(BlockingQueue<PriceUpdateEvent> priceUpdateChannel, SecurityService securityService, CalculationService calculationService) {
+        this.priceUpdateChannel = priceUpdateChannel;
+        this.securityService = securityService;
+        this.calculationService = calculationService;
+    }
+
     public void runMarketDataProvider() {
         while (true) {
             long timeInterval = sleeper();
             if (marketTimer()) {
                 PriceUpdateEvent priceUpdateEvent = createPriceUpdateEvent(timeInterval);
-                if (!this.priceUpdateChannel.offer(priceUpdateEvent)) {
-                    this.logger.error("/!\\/!\\ ---------- Price Channel full, unable to insert price update " + priceUpdateEvent + ". ----------/!\\/!\\");
+                if(priceUpdateEvent != null) {
+                    if (!this.priceUpdateChannel.offer(priceUpdateEvent)) {
+                        this.logger.error("/!\\/!\\ ---------- Price Channel full, unable to insert price update " + priceUpdateEvent + ". ----------/!\\/!\\");
+                    }
+                }else{
+                    this.logger.error("An error Occurred while creating Price Update Event.");
                 }
             }
         }
     }
 
-    private PriceUpdateEvent createPriceUpdateEvent(long timeInterval) {
+    PriceUpdateEvent createPriceUpdateEvent(long timeInterval) {
         Security security = securityService.retrieveRandomStockSecurity();
-        BigDecimal undlNewSpotPrice = calculationService.calculateStockPrice(security.getLastStockPrice(), security.getStockReturn(), security.getAnnualStdDev(), timeInterval);
-        return new PriceUpdateEvent(security.getTickerId(), undlNewSpotPrice);
+        if (security != null) {
+            BigDecimal undlNewSpotPrice = calculationService.calculateStockPrice(security.getLastStockPrice(), security.getStockReturn(), security.getAnnualStdDev(), timeInterval);
+            if(undlNewSpotPrice != null) {
+                return new PriceUpdateEvent(security.getTickerId(), undlNewSpotPrice);
+            } else {
+                this.logger.error("An error occured while getting new stock price.");
+                return null;
+            }
+
+        } else {
+            this.logger.error("Unable to retrieve a stock from referential.");
+            return null;
+        }
 
     }
-
-
-//    private BigDecimal d1(BigDecimal newStockPrice , BigDecimal strike, BigDecimal annualRiskFreeRate, BigDecimal timeToExpiry, BigDecimal annualStockStdDev) {
-//
-//        BigDecimal strikePrice = newStockPrice.multiply(strike);
-//
-//        double top = Math.log(newStockPrice.divide(strikePrice,10, RoundingMode.HALF_DOWN ).doubleValue()) +
-//                    (annualRiskFreeRate.add(annualStockStdDev.pow(2).divide(BigDecimal.valueOf(2),10, RoundingMode.HALF_DOWN) ) ).multiply(timeToExpiry).doubleValue();
-//        double bottom = annualRiskFreeRate.multiply(BigDecimal.valueOf(Math.sqrt(timeToExpiry.doubleValue()))).doubleValue();
-//
-//        return BigDecimal.valueOf(top).divide(BigDecimal.valueOf(bottom),10, RoundingMode.HALF_DOWN);
-//    }
-//
-//    private BigDecimal d2(BigDecimal newStockPrice , BigDecimal strike, BigDecimal annualRiskFreeRate, BigDecimal timeToExpiry, BigDecimal annualStockStdDev) {
-//
-//        BigDecimal d1 = d1(newStockPrice, strike, annualRiskFreeRate,timeToExpiry, annualStockStdDev);
-//        return d1.subtract(annualStockStdDev.multiply(BigDecimal.valueOf(Math.sqrt(timeToExpiry.doubleValue()))));
-//    }
-
-//    private BigDecimal computePutOptionPrice(BigDecimal newStockPrice , BigDecimal strike, BigDecimal annualRiskFreeRate, BigDecimal timeToExpiry, BigDecimal annualStockStdDev) {
-//
-//        BigDecimal strikePrice = newStockPrice.multiply(strike);
-//
-////        BigDecimal d2 = d2(newStockPrice,strikePrice,annualRiskFreeRate, timeToExpiry, annualStockStdDev);
-////        BigDecimal d1 = d1(newStockPrice,strikePrice,annualRiskFreeRate, timeToExpiry, annualStockStdDev);
-////
-////        BigDecimal timeRateValue = BigDecimal.valueOf(Math.exp(-1*annualRiskFreeRate.doubleValue()*timeToExpiry.doubleValue()));
-//        double putPrice= BlackScholesFormula.calculate(false,newStockPrice.doubleValue(), strikePrice.doubleValue(),annualRiskFreeRate.doubleValue(), timeToExpiry.doubleValue(), annualStockStdDev.doubleValue());
-//        return BigDecimal.valueOf(putPrice);
-//
-////        return strikePrice.multiply(timeRateValue).multiply(standardNormalDistribution(d2.multiply(BigDecimal.valueOf(-1)).doubleValue()))
-////                .subtract(newStockPrice.multiply( standardNormalDistribution(d1.multiply(BigDecimal.valueOf(-1)).doubleValue())));
-//    }
-
-//    private BigDecimal computeCallOptionPrice(BigDecimal newStockPrice , BigDecimal strike, BigDecimal annualRiskFreeRate, BigDecimal timeToExpiry, BigDecimal annualStockStdDev) {
-//
-//        BigDecimal strikePrice = newStockPrice.multiply(strike);
-////        BigDecimal d1 = d1(newStockPrice,strikePrice,annualRiskFreeRate, timeToExpiry, annualStockStdDev);
-////        BigDecimal d2 = d2(newStockPrice,strikePrice,annualRiskFreeRate, timeToExpiry, annualStockStdDev);
-////
-////        BigDecimal timeRateValue = BigDecimal.valueOf(Math.exp(-1*annualRiskFreeRate.doubleValue()*timeToExpiry.doubleValue()));
-//
-//         double callPrice= BlackScholesFormula.calculate(true,newStockPrice.doubleValue(), strikePrice.doubleValue(),annualRiskFreeRate.doubleValue(), timeToExpiry.doubleValue(), annualStockStdDev.doubleValue());
-//
-//        return BigDecimal.valueOf(callPrice);
-//        //newStockPrice.multiply(standardNormalDistribution(d1.doubleValue())).subtract(strikePrice.multiply(timeRateValue).multiply(standardNormalDistribution(d2.doubleValue())));
-//    }
-
-//    private BigDecimal standardNormalDistribution(double x) {
-//
-//        //System.out.println(" in BlackScholesFormula:standardNormalDistribution(" + x + ")");
-//        double top = Math.exp(-0.5 * Math.pow(x, 2));
-//        double bottom = Math.sqrt(2 * Math.PI);
-//        double resp = top / bottom;
-//
-//        return BigDecimal.valueOf(resp);
-//    }
 
     private long sleeper() {
         Random random = new Random();
