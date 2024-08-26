@@ -32,7 +32,7 @@ public class BlackScholesFormula {
 
             blackScholesOptionPrice = strikePrice * Math.exp(-riskFreeRate * timeToExpiry) * cd2 - spotPrice * cd1;
         }
-        return BigDecimal.valueOf(blackScholesOptionPrice).setScale(4, RoundingMode.HALF_DOWN);
+        return BigDecimal.valueOf(blackScholesOptionPrice).setScale(6, RoundingMode.HALF_DOWN);
     }
 
     private static double d1(double spotPrice, double strikePrice, double riskFreeRate, double timeToExpiry, double returnsImpliedVol) {
