@@ -63,9 +63,9 @@ public class MarketDataSubscriber {
                 calculationService.updateAssetValue(asset, newUndlPrice, tobeUpdated);
 
             });
+            portfolio.calculatePortfolioNAV();
             PrettyPrintUtils.printPortfolio(portfolio);
         }
-        portfolio.calculatePortfolioNAV();
 
         return portfolio;
     }

@@ -28,7 +28,7 @@ public class CalculationService {
     }
 
     public Portfolio calculateInitialPortfolioNav(Portfolio portfolio) {
-
+        this.logger.info("Calculating Initial Portfolio Value:");
         portfolio.getAssets().forEach(asset -> {
             String assetTicker = asset.getTicker();
             Security tobeUpdated = this.securityService.retrieveSecurityByTickerID(assetTicker);
